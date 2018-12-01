@@ -1,0 +1,125 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>命名空间</title>
+    <link rel="stylesheet" href="prism.css">
+    <script src="jquery-3.3.1.min.js"></script>
+    <style type="text/css">
+        .b{background-color:pink;width:400px;height:300px;position: absolute; color: #000;font-size: 24px;text-align: left;border-radius: 10px;box-shadow: 5px 5px 2px #ccc;}
+    </style>
+</head>
+<body style="background-image: url(github1.jpg);">
+    <!-- <h1 style="margin: 0 auto;color: brown;text-align: justify;">命名空间</h1> -->
+    <script src="prism.js"></script>
+
+    <pre class="line-numbers" data-start="0" style="width: 1200px;margin: 0 auto;background-color: rgba(0,0,0,0.77);">
+        <code class="language-php">
+            &lt;?php
+            /**
+             * 命名空间
+             * 1. 空间是放代码的地方,可以是一个独立文件,也可是文件的一部分
+             * 2. 命名是动词,就是起个名字
+             * 3. 简单理解:命名空间就是给存在代码的地方起个名字,不同的代码放在不同的地方
+             * 4. 所以,命名空间是一种代码的组织结构,或者封装方法,类似于操作系统中的文件组织结构
+             * 5. 将代码放在对应的空间中,哪怕这些代码的命名是重复的也没问题,因为他们所在空间不同
+             * 6. 就如同将同名文件,存放在不同的文件夹中是一样的
+             * 7. 例如,合肥有条路叫长江路,这并不影响南京也有一条叫长江路的路名,因为用城市进行了区隔
+             * 8. 命名空间适合于之前的有可能命名冲突的全局成员:函数,类与接口,常量
+             */
+
+            /**
+             * 一、定义命名空间
+             * 命名空间主要针对:类,函数和常量,因为他们的作用域是全局的,产生命名冲突的可能性很大
+             * 1. 关键字: namespace
+             *      作用:1. 定义命名空间;  2.显示的访问当前命名空间,类似于self;
+             * 2. 常量: __NAMESPACE__: 当前命名空间字符串,全局为空字符
+             * 3. 声明空间前不宜有除了declare之前的语句
+             */
+
+            namespace one;
+
+            //常量
+            const SITE = 'php中文网';
+
+            //函数
+            function hello()
+            {
+                return '我学习,我快乐';
+            }
+            //类
+            class House
+            {
+                public static $area = 133;
+            }
+
+            echo '当前的空间名称是: ', __NAMESPACE__, '&lt;br&gt;';
+
+            //访问当前空间中常量
+            echo '站点名称: ',SITE, '&lt;br&gt;';
+
+            //访问当前空间的类成员
+            echo '房屋的面积是: ', House::$area, '平方米&lt;hr&gt;';
+
+            //用namespace关键字显示的访问命名空间
+            echo '站点名称: ',namespace\SITE, '&lt;br&gt;';
+
+            //用namespace关键字显示的访问命名空间
+            echo '房屋的面积是: ', namespace\House::$area, '平方米&lt;hr&gt;';
+
+            //可以在一个脚本中创建多个命名空间
+            namespace two;
+
+            const DOMAIN = 'www.php.cn';
+
+            class User
+            {
+                public static $name = 'admin';
+            }
+
+            //查看当前命名空间名称:
+            echo '当前空间名称: ',__NAMESPACE__, '&lt;br&gt;';
+            //访问常量
+            echo '域名是: ',DOMAIN, '&lt;br&gt;';
+            echo '域名是: ',namespace\DOMAIN, '&lt;br&gt;';
+
+            //如何在当前的空间中,访问另一个空间中的成员呢?
+            //需要使用完整的命名空间名称: 完全限定空间,从全局空间开始,类似于文件根目录
+            //全局空间使用 : '\' 字符表示
+            //访问one空间中的常量类属性
+
+            //echo '房屋的面积是: ', one\House::$area, '平方米&lt;br&gt;';  //取不到值
+            echo '房屋的面积是: ', \one\House::$area, '平方米&lt;br&gt;';
+
+            //如果我现在想定义一个全局的成员,例如函数,怎么操作呢?
+            //目前这种语法结构是办不到的,下节课我们会介绍一种全新语法来实现
+        </code>
+    </pre>
+    
+    <div class="b">
+        <pre class="line-numbers" data-start="0">
+<span style="color:green;margin-top: 0px;">运行结果：</span>
+当前的空间名称是: one
+站点名称: php中文网
+房屋的面积是: 133平方米
+站点名称: php中文网
+房屋的面积是: 133平方米
+当前空间名称: two
+域名是: www.php.cn
+域名是: www.php.cn
+房屋的面积是: 133平方米 
+        </pre>
+    </div>
+    <script type="text/javascript">
+    
+    $('html').mousemove(function(yd){
+        //小方块跟随鼠标移动而移动
+        $('.b').css({
+        'left':yd.pageX,
+        'top':yd.pageY
+
+        })
+        })
+    </script>
+</body>
+</html>
