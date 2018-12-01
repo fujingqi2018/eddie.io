@@ -1,0 +1,165 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>trait 代码复用机制</title>
+    <link rel="stylesheet" href="prism.css">
+    <script src="http://libs.baidu.com/jquery/2.0.0/jquery.min.js"></script>
+    <style type="text/css">
+        .b{background-color:pink;width:550px;height:300px;position: absolute; color: #000;font-size: 24px;text-align: left;border-radius: 10px;box-shadow: 5px 5px 2px #ccc;}
+    </style>
+</head>
+<body style="background-image: url(github1.jpg);">
+    <a href="index.html" style="text-decoration: none;font-size: 22;font-weight: 200;color: #fff;margin-left: 300px;"><span style="color: orange;">上一篇：</span>命名空间</a>
+    <script src="prism.js"></script>
+    <pre class="line-numbers" data-start="0" style="width: 1200px;margin: 0 auto;background-color: rgba(0,0,0,0.77);">
+        <code class="language-php">
+        &lt;?php
+        /**
+         * trait 代码复用机制
+         * 1.trait本意是特征,就是给当前类添加一些新特征;
+         * 2.而这些新功能,尚不具备形成一个功能完善的类,并且也不方便用一个类进行包装
+         * 3.类似于类的插件库,用来扩充当前类的功能,或者在不修改父类功能的前提下,实现功能动态更新
+         * 4.它工作在当前类与父类之间(如果有),可覆写同名父类成员
+         * 5.trai类之间可以相互组合,也可进行访问控制
+         * 6.trait类中也可以有属性(7.0前类中不允许有与之同名属性,7.0后可以,但必须同性同值)
+         *      所谓同性同值: 访问限制相同,初始值相同
+         * 7.trait类尽管也使用与类一样的语法,但却不是类,所以不能实例化
+         * 8.trait类是使用use关键字将自身代码插入到当前工作类中的
+         * 9.trait类中的同名成员冲突可以使用替换(insteadof)和别名(as)来解决
+         */
+
+        //定义trait Func1
+        trait Func1
+        {
+            //驾驶
+            public function drive()
+            {
+                return '支持无人驾驶';
+            }
+
+            //保养
+            public function care()
+            {
+                return '保养很简单,记得及时充电就行啦~~';
+            }
+
+            //交能事故处理
+            public function accident()  //['æksədənt]
+            {
+                return '汽车会自动报警,你就安静的坐在车里等警察来吧!';
+            }
+        }
+
+        trait Func2
+        {
+            //燃料能源
+            public function fuel()
+            {
+                return '新能源汽车';
+            }
+
+            //交能事故处理
+            public function accident()
+            {
+                return '只要不起火,电池还能继续使用的,放心吧!';
+            }
+        }
+
+        class Auto
+        {
+            public $brand;      //品牌
+            public $purpose;    //用途
+
+            //构造方法
+            public function __construct($brand, $purpose)
+            {
+                $this-&gt;brand = $brand;
+                $this-&gt;purpose = $purpose;
+            }
+
+            //保养
+            public function care()
+            {
+                return '请到授权的专业4S店保养!';
+            }
+
+
+        }
+
+
+        //定义工作类Bus, 继子自 Auto
+        class Bus  extends Auto
+        {
+            //Bus类不仅可以访问父类Auto中的成员,还可以访问Func1和Func2方法库
+        //    use Func1;
+        //    use Func2;
+
+            //导入trait类库: Func1, Func2,并声明命名冲突解决方案
+            use Func1, Func2{
+                //当直接访问accident()时,用Func1中的同名方法替换Func2同名方法
+                Func1::accident insteadof Func2;
+
+                //为防止Func2中的accident()方法无法调用,可以使用别名,来解决冲突
+                Func2::accident as Func2Acc;
+            }
+
+            //创建与trait中同名方法
+            public function care()
+            {
+                return '我们是生产商,保养与致电当地经销商';
+            }
+        }
+
+
+        //实例化工作类Bus
+        $bus = new Bus('安凯','客运');
+
+        //访问父类Auto中的属性
+        echo $bus-&gt;brand, '&lt;br&gt;';
+        echo $bus-&gt;purpose, '&lt;br&gt;';
+
+        //访问工作类导入的trait库中的方法
+        echo $bus-&gt;drive(), '&lt;br&gt;';
+        echo $bus-&gt;fuel(), '&lt;br&gt;';
+
+        //在父类与trait库Func1都有care()方法,究竟会访问哪一个呢?
+        //显然, trait中的同名方法会覆写父类同名方法
+        //基于同样的原因,当前工作类中如果也有与trait中同名方法,也会覆写trait类同名方法
+        echo $bus-&gt;care(), '&lt;br&gt;';
+
+        //trait类似于类的插件库,不同的人去写同一功能插件,难免会出现命名冲突,怎么解决呢?
+        //当前Func1与Func2中都有一个:事故处理方法:accident()
+        echo $bus-&gt;accident(), '&lt;br&gt;';
+
+        //使用别名访问 Func2中的 accident()方法: 别名是: Func2Acc
+        echo $bus-&gt;Func2Acc(), '&lt;br&gt;';
+        </code>
+    </pre>
+    <div class="b">
+        <pre style="text-align: left;">
+<span style="color:green;">运行结果：</span>
+安凯
+客运
+支持无人驾驶
+新能源汽车
+我们是生产商,保养与致电当地经销商
+汽车会自动报警,你就安静的坐在车里等警察来吧!
+只要不起火,电池还能继续使用的,放心吧!
+        </pre>
+    </div>
+    
+
+    <script type="text/javascript">
+    
+    $('html').mousemove(function(yd){
+        //小方块跟随鼠标移动而移动
+        $('.b').css({
+        'left':yd.pageX,
+        'top':yd.pageY
+
+        })
+        })
+    </script>
+</body>
+</html>
